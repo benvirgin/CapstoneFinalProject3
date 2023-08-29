@@ -1,0 +1,40 @@
+:root {
+  --primary-color: #034284;
+}
+
+* {
+  font-family: "Lato", sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+#menu {
+  list-style: none;
+}
+
+.btn-custom {
+  background-color: var(--primary-color);
+  color: white;
+  margin-bottom: 15px;
+}
+
+.navbar a:hover {
+  color: var(--primary-color);
+}
+
+.error-message {
+  color: red;
+}
+
+.bordered {
+  border: 1px solid grey;
+}
+
+li {
+  list-style-type: none;
+}
+
+.fa-2xl {
+  font-size: 2rem;
+}/*# sourceMappingURL=styles.css.map */

@@ -1,0 +1,22 @@
+{
+  "specialists": [
+    {
+      "name": "Benjamin Virgin",
+      "SC": "Service Call Rate: 10%",
+      "bonus": "Bonus per hour: $.33",
+      "id": 0
+    },
+    {
+      "name": "Dana Virgin",
+      "SC": "Service Call Rate: 9%",
+      "bonus": "Bonus per hour: $2",
+      "id": 1
+    },
+    {
+      "name": "Eli Virgin",
+      "SC": "Service Call Rate: 80%",
+      "bonus": "Bonus per hour: $2",
+      "id": 2
+    }
+  ]
+}
