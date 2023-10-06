@@ -74,7 +74,7 @@ const SignUpModal = ({ showModal, toggleModal, handleSignUp }) => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="signup-name" className="form-label">
-                    First and Last Name
+                    Name
                   </label>
                   <input
                     type="text"

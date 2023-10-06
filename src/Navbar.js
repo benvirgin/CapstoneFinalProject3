@@ -3,14 +3,12 @@ import LoginModal from "./LoginModal";
 import SignUpModal from "./SignUpModal";
 import { auth, db } from "./firebase";
 import {
-  deleteUser,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, deleteDoc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 // import AdminManagementModal from "./AdminManagementModal";
 import EditStaffStatsModal from "./EditStaffStatsModal";
-import Carousel from "./Carousel";
 
 const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -55,28 +53,6 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
       linkElement.rel = "stylesheet";
       linkElement.href = "/bootstrap.min.css";
       document.head.appendChild(linkElement);
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
-
-    if (!user) {
-      console.log("User not authenticated.");
-      return;
-    }
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      await deleteDoc(userRef);
-
-      await deleteUser(user);
-
-    } catch (error) {
-      console.log("Error deleting user account:", error);
-      console.log("Error code:", error.code);
-      console.log("Error message:", error.message);
-      console.log("Error details:", error.details);
     }
   };
 
@@ -125,8 +101,6 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
       <a href="/" className="navbar-brand" role="link">
         <img src="TPlogo.png" alt="Turf Plus Logo" />
       </a>
-
-      <Carousel />
 
       {/* Navbar toggler */}
       <button className="navbar-toggler" type="button" onClick={toggleNavbar}>
@@ -210,25 +184,6 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
                   style={{ color: "#034284" }}
                 ></i>{" "}
                 Logout
-              </a>
-            </li>
-          )}
-
-          {/* Delete Account button */}
-          {userLoggedIn && (
-            <li className="navbar-item">
-              <a
-                id="delete-account"
-                className="nav-link"
-                onClick={handleDeleteAccount}
-                role="link"
-              >
-                <i
-                  role="icon"
-                  className="fa-solid fa-trash"
-                  style={{ color: "#034284" }}
-                ></i>{" "}
-                Delete Account
               </a>
             </li>
           )}
