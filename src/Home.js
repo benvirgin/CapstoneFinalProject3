@@ -7,7 +7,6 @@ import axios from "axios";
 import rateLimit from "axios-rate-limit";
 
 const Home = ({ admins, userEmail, userLoggedIn, isAdminUser }) => {
-
   const http = rateLimit(axios.create(), {
     maxRequests: 1,
     perMilliseconds: 1000,
@@ -27,10 +26,11 @@ const Home = ({ admins, userEmail, userLoggedIn, isAdminUser }) => {
           <h5>
             You're logged out.
             <br />
-            Please login to view the trainings.
+            Please login to view your stats.
           </h5>
           <hr />
-                    <WeatherData http={http} />
+          <WeatherData http={http} />
+          <Trainings admins={admins} userEmail={userEmail} />
         </div>
       )}
     </>
