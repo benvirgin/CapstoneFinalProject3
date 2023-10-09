@@ -18,7 +18,7 @@ const Home = ({ admins, userEmail, userLoggedIn, isAdminUser }) => {
         <div className="home">
           <AccountPage admins={admins} userEmail={userEmail} />
           {isAdminUser && <CreateTrainingCard />}
-          <Trainings admins={admins} userEmail={userEmail} />
+          {isAdminUser && <Trainings admins={admins} userEmail={userEmail} />}
         </div>
       ) : (
         <div className="logoutScreen">

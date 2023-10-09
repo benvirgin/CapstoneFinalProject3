@@ -89,8 +89,25 @@ const Trainings = ({ admins, userEmail }) => {
     }
   }, [disableToggle, editableIndex]);
 
-  const handleToggleDisable = () => {
-    setDisableToggle(true);
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.setData("text/plain", index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, targetIndex) => {
+    e.preventDefault();
+    const sourceIndex = parseInt(e.dataTransfer.getData("text/plain"));
+
+    // Reorder the trainings array
+    const reorderedTrainings = [...trainings];
+    const movedTraining = reorderedTrainings.splice(sourceIndex, 1)[0];
+    reorderedTrainings.splice(targetIndex, 0, movedTraining);
+
+    // Update the state with the new order
+    setTrainings(reorderedTrainings);
   };
 
   return (
@@ -100,8 +117,16 @@ const Trainings = ({ admins, userEmail }) => {
           const isEditable = editableIndex === index;
           const isExpanded = editableIndex === null;
           const isAdmin = admins.includes(userEmail);
+
           return (
-            <div className={`card ${isEditable ? "editable" : ""}`} key={index}>
+            <div
+              className={`card ${isEditable ? "editable" : ""}`}
+              key={index}
+              draggable={isAdmin} // Allow dragging for admins
+              onDragStart={(e) => handleDragStart(e, index)} // Set the dragged item's index
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, index)} // Handle drop to reorder
+            >
               <div
                 className={`card-header ${isEditable ? "editable-header" : ""}`}
                 id={`trainingId${index + 1}`}
@@ -153,7 +178,6 @@ const Trainings = ({ admins, userEmail }) => {
                           top: "0.7rem",
                           left: "0.7rem",
                         }}
-                        onMouseEnter={handleToggleDisable}
                       >
                         <i
                           className="fa-solid fa-pen fa-lg"
