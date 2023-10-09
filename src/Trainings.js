@@ -81,13 +81,13 @@ const Trainings = ({ admins, userEmail }) => {
   useEffect(() => {
     const target = document.getElementById(`training${editableIndex + 1}`);
     if (target) {
-      if (editableIndex !== null && disableToggle) {
+      if (editableIndex !== null) {
         target.classList.add("show");
       } else {
         target.classList.remove("show");
       }
     }
-  }, [disableToggle, editableIndex]);
+  }, [editableIndex]);
 
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData("text/plain", index);
@@ -115,7 +115,7 @@ const Trainings = ({ admins, userEmail }) => {
       <div className="container" id="accordion">
         {trainings.map((training, index) => {
           const isEditable = editableIndex === index;
-          const isExpanded = editableIndex === null;
+          const isExpanded = editableIndex === index; // Change this line
           const isAdmin = admins.includes(userEmail);
 
           return (
@@ -233,7 +233,7 @@ const Trainings = ({ admins, userEmail }) => {
               </div>
               <div
                 id={`training${index + 1}`}
-                className={`collapse ${isExpanded ? "" : "show"}`}
+                className={`collapse ${isExpanded ? "show" : ""}`} // Change this line
                 aria-labelledby={`trainingId${index + 1}`}
                 data-parent="#accordion"
               >
