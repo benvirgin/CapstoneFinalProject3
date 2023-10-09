@@ -45,7 +45,7 @@ const SignUpModal = ({ showModal, toggleModal, handleSignUp }) => {
               <form onSubmit={handleSubmit} className="d-flex flex-column">
                 <div className="mb-3">
                   <label htmlFor="signup-email" className="form-label">
-                    Email Address
+                    Email
                   </label>
                   <input
                     type="email"
@@ -60,7 +60,7 @@ const SignUpModal = ({ showModal, toggleModal, handleSignUp }) => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="signup-password" className="form-label">
-                    Create a Password
+                    Password
                   </label>
                   <input
                     type="password"
