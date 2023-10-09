@@ -23,11 +23,7 @@ const Home = ({ admins, userEmail, userLoggedIn, isAdminUser }) => {
       ) : (
         <div className="logoutScreen">
           <br />
-          <h5>
-            You're logged out.
-            <br />
-            Please login to view your stats.
-          </h5>
+          <h5>Please login to view your stats.</h5>
           <hr />
           <WeatherData http={http} />
           <Trainings admins={admins} userEmail={userEmail} />
