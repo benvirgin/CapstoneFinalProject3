@@ -27,13 +27,13 @@ const WeatherData = ({ http }) => {
         const todayForecast = forecastData.forecast.forecastday[0];
         setWeatherData({
           current: {
-            temp_f: Math.round(currentData.current.temp_f), // Round to nearest whole number
+            temp_f: Math.round(currentData.current.temp_f),
             condition: currentData.current.condition,
           },
           forecast: {
             day: {
-              maxtemp_f: Math.round(todayForecast.day.maxtemp_f), // Round to nearest whole number
-              mintemp_f: Math.round(todayForecast.day.mintemp_f), // Round to nearest whole number
+              maxtemp_f: Math.round(todayForecast.day.maxtemp_f),
+              mintemp_f: Math.round(todayForecast.day.mintemp_f),
               condition: todayForecast.day.condition,
             },
           },

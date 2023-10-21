@@ -1,38 +1,89 @@
-import React, { useState } from "react";
-import _ from "lodash";
+import React, { useState, useEffect } from "react";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
+import { db } from "./firebase";
 
-const AdminManagementModal = ({
-  admins,
-  setAdmins,
-  userEmail,
-  showModal,
-  toggleModal,
-}) => {
+const AdminManagementModal = ({ userEmail, showModal, toggleModal }) => {
   const [newEmail, setNewEmail] = useState("");
   const [error, setError] = useState("");
+  const [adminEmails, setAdminEmails] = useState([]);
 
-  const handleAddEmail = (e) => {
+  useEffect(() => {
+    const fetchAdminEmails = async () => {
+      try {
+        const adminEmailsCollection = collection(db, "admins");
+        const adminEmailsQuery = query(adminEmailsCollection);
+        const querySnapshot = await getDocs(adminEmailsQuery);
+        const emails = [];
+        querySnapshot.forEach((doc) => {
+          emails.push(doc.data().adminEmails);
+        });
+        // Flatten the emails array since it's an array of arrays
+        const flattenedEmails = [].concat(...emails);
+        setAdminEmails(flattenedEmails);
+      } catch (error) {
+        console.error("Error fetching admin emails:", error);
+      }
+    };
+
+    fetchAdminEmails();
+  }, []);
+
+  const handleAddEmail = async (e) => {
     e.preventDefault();
 
-    if (admins.includes(newEmail)) {
+    if (adminEmails.includes(newEmail)) {
       setError("Email is already in the allowed users list.");
       return;
     }
 
-    const updatedUsers = _.concat(admins, newEmail);
-    setAdmins(updatedUsers);
-    setNewEmail("");
-    setError("");
-  };
+    try {
+      // Update the existing admin emails document by adding the new email to the array
+      const adminEmailsCollection = collection(db, "admins");
+      const adminEmailsDoc = doc(adminEmailsCollection, "Oh9FTH2TRS4LQvbT5SMf");
+      await updateDoc(adminEmailsDoc, {
+        adminEmails: arrayUnion(newEmail),
+      });
 
-  const handleRemoveEmail = (email) => {
+      // Update the local state
+      setAdminEmails([...adminEmails, newEmail]);
+      setNewEmail("");
+      setError("");
+    } catch (error) {
+      console.error("Error adding admin email:", error);
+      setError("Error adding the new email.");
+    }
+  }
+
+  const handleRemoveEmail = async (email) => {
     if (email === userEmail) {
       setError("Cannot delete the email of the currently logged-in user.");
       return;
     }
 
-    const updatedUsers = _.filter(admins, (user) => user !== email);
-    setAdmins(updatedUsers);
+    try {
+      const adminEmailsCollection = collection(db, "admins");
+      const adminEmailQuery = query(adminEmailsCollection, where("adminEmails", "array-contains", email));
+      const querySnapshot = await getDocs(adminEmailQuery);
+      querySnapshot.forEach((doc) => {
+        const updatedEmails = doc.data().adminEmails.filter((e) => e !== email);
+        updateDoc(doc.ref, { adminEmails: updatedEmails });
+      });
+
+      const updatedEmails = adminEmails.filter((e) => e !== email);
+      setAdminEmails(updatedEmails);
+    } catch (error) {
+      console.error("Error removing admin email:", error);
+    }
   };
 
   return (
@@ -56,7 +107,6 @@ const AdminManagementModal = ({
             </div>
             <div className="modal-body">
               <form onSubmit={handleAddEmail}>
-                {" "}
                 <label htmlFor="new-admin-email" style={{ marginTop: "15px" }}>
                   Add Email:
                 </label>
@@ -81,23 +131,22 @@ const AdminManagementModal = ({
               </form>
               <h3>Other Admins:</h3>
               <ul>
-                {admins.map(
-                  (email) =>
-                    email !== userEmail && (
-                      <li key={email}>
-                        {email}{" "}
-                        <button
-                          type="button"
-                          className="btn btn-lg"
-                          onClick={() => handleRemoveEmail(email)}
-                        >
-                          <i
-                            className="fa-solid fa-xmark fa-lg"
-                            style={{ color: "red" }}
-                          ></i>
-                        </button>
-                      </li>
-                    )
+                {adminEmails.map((email) =>
+                  email !== userEmail ? (
+                    <li key={email}>
+                      {email}{" "}
+                      <button
+                        type="button"
+                        className="btn btn-lg"
+                        onClick={() => handleRemoveEmail(email)}
+                      >
+                        <i
+                          className="fa-solid fa-xmark fa-lg"
+                          style={{ color: "red" }}
+                        ></i>
+                      </button>
+                    </li>
+                  ) : null
                 )}
               </ul>
             </div>

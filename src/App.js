@@ -1,39 +1,22 @@
-import React, { useEffect, useState, Component } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { useNavigate, Route, Routes } from "react-router-dom";
 import Home from "./Home";
 import Navbar from "./Navbar";
 import { auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
-
-export class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.log("Caught an error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
-    }
-
-    return this.props.children;
-  }
-}
 
 function App() {
   const navigate = useNavigate();
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [admins, setAdmins] = useState([]);
-  const isAdminUser = admins.includes(userEmail);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -41,18 +24,37 @@ function App() {
         setUserLoggedIn(true);
         setUserEmail(user.email);
 
-        const adminsArray = [
-          "benjamincvirgin@gmail.com",
-          "danaandcelesta@gmail.com",
-        ];
-        setAdmins(adminsArray);
+        // Check if the user's email is in the "admins" collection
+        const db = getFirestore();
+        const adminsCollection = collection(db, "admins");
+        const q = query(
+          adminsCollection,
+          where("adminEmails", "array-contains", user.email)
+        );
+
+        getDocs(q)
+          .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+              // The user is an admin
+              setIsAdminUser(true);
+            } else {
+            }
+          })
+          .catch((error) => {
+            console.error("Error checking admin status:", error);
+          });
+
         const uid = user.uid;
-        setTimeout(() => navigate(`/${uid}`), 0);
+        setTimeout(() => {
+          navigate(`/${uid}`);
+        }, 0);
       } else {
         setUserLoggedIn(false);
         setUserEmail("");
-        setAdmins([]);
-        setTimeout(() => navigate("/"), 0);
+        setIsAdminUser(false);
+        setTimeout(() => {
+          navigate("/");
+        }, 0);
       }
     });
 
@@ -66,15 +68,13 @@ function App() {
       <Navbar
         userLoggedIn={userLoggedIn}
         userEmail={userEmail}
-        admins={admins}
-        setAdmins={setAdmins}
+        isAdminUser={isAdminUser}
       />
       <Routes>
         <Route
           path={`/:uid`}
           element={
             <Home
-              admins={admins}
               userEmail={userEmail}
               userLoggedIn={userLoggedIn}
               isAdminUser={isAdminUser}
@@ -85,7 +85,6 @@ function App() {
           path="/"
           element={
             <Home
-              admins={admins}
               userEmail={userEmail}
               userLoggedIn={userLoggedIn}
               isAdminUser={isAdminUser}

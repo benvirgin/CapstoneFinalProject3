@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
 
-const CreateTrainingCard = () => {
+const CreateTrainingCard = ({ cardOrder, setCardOrder }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -23,10 +23,15 @@ const CreateTrainingCard = () => {
   const handleCreateTraining = async () => {
     if (title && content) {
       try {
-        await addDoc(collection(db, "trainings"), {
+        // Set the document ID to match the title
+        await setDoc(doc(db, "trainings", title), {
           title: title,
           content: content,
         });
+
+        // Update the card order array with the new document's ID
+        const updatedCardOrder = [...cardOrder, title];
+        setCardOrder(updatedCardOrder);
 
         // Reset form
         setTitle("");

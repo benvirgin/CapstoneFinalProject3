@@ -21,6 +21,7 @@
 
 .navbar a:hover {
   color: var(--primary-color);
+  cursor: pointer;
 }
 
 .error-message {

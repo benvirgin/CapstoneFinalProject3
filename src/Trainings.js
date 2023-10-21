@@ -3,17 +3,17 @@ import {
   collection,
   onSnapshot,
   deleteDoc,
+  setDoc,
   doc,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-const Trainings = ({ admins, userEmail }) => {
+const Trainings = ({ isAdminUser, userEmail }) => {
   const [trainings, setTrainings] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
   const [updatedTitle, setUpdatedTitle] = useState("");
   const [updatedContent, setUpdatedContent] = useState("");
-  const [disableToggle, setDisableToggle] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "trainings"), (snapshot) => {
@@ -54,13 +54,28 @@ const Trainings = ({ admins, userEmail }) => {
   const handleCheck = async (index) => {
     try {
       const training = trainings[index];
-      const updatedTraining = {
-        ...training,
-        title: updatedTitle !== "" ? updatedTitle : training.title,
-        content: updatedContent !== "" ? updatedContent : training.content,
-      };
+      const updatedTitleValue =
+        updatedTitle !== "" ? updatedTitle : training.title;
+      const updatedContentValue =
+        updatedContent !== "" ? updatedContent : training.content;
 
-      await updateDoc(doc(db, "trainings", training.id), updatedTraining);
+      if (updatedTitleValue !== training.title) {
+        const newDocRef = doc(db, "trainings", updatedTitleValue);
+        await setDoc(newDocRef, {
+          title: updatedTitleValue,
+          content: updatedContentValue,
+        });
+
+        if (index !== null) {
+          await deleteDoc(doc(db, "trainings", training.id));
+        }
+      } else {
+        await updateDoc(doc(db, "trainings", training.id), {
+          title: updatedTitleValue,
+          content: updatedContentValue,
+        });
+      }
+
       setEditableIndex(null);
       setUpdatedTitle("");
       setUpdatedContent("");
@@ -89,44 +104,16 @@ const Trainings = ({ admins, userEmail }) => {
     }
   }, [editableIndex]);
 
-  const handleDragStart = (e, index) => {
-    e.dataTransfer.setData("text/plain", index);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e, targetIndex) => {
-    e.preventDefault();
-    const sourceIndex = parseInt(e.dataTransfer.getData("text/plain"));
-
-    // Reorder the trainings array
-    const reorderedTrainings = [...trainings];
-    const movedTraining = reorderedTrainings.splice(sourceIndex, 1)[0];
-    reorderedTrainings.splice(targetIndex, 0, movedTraining);
-
-    // Update the state with the new order
-    setTrainings(reorderedTrainings);
-  };
-
   return (
     <div className="trainings">
       <div className="container" id="accordion">
         {trainings.map((training, index) => {
           const isEditable = editableIndex === index;
-          const isExpanded = editableIndex === index; // Change this line
-          const isAdmin = admins.includes(userEmail);
+          const isExpanded = editableIndex === index;
+          // const isAdmin = isAdminUser && isAdminUser.includes(userEmail);
 
           return (
-            <div
-              className={`card ${isEditable ? "editable" : ""}`}
-              key={index}
-              draggable={isAdmin} // Allow dragging for admins
-              onDragStart={(e) => handleDragStart(e, index)} // Set the dragged item's index
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)} // Handle drop to reorder
-            >
+            <div className={`card ${isEditable ? "editable" : ""}`} key={index}>
               <div
                 className={`card-header ${isEditable ? "editable-header" : ""}`}
                 id={`trainingId${index + 1}`}
@@ -163,7 +150,7 @@ const Trainings = ({ admins, userEmail }) => {
                     )}
                   </h5>
                 </span>
-                {!isEditable && isAdmin && (
+                {!isEditable && isAdminUser && (
                   <>
                     <span
                       className="tt"
@@ -207,7 +194,7 @@ const Trainings = ({ admins, userEmail }) => {
                     </span>
                   </>
                 )}
-                {isEditable && isAdmin && (
+                {isEditable && isAdminUser && (
                   <span
                     className="tt"
                     data-bs-placement="bottom"
@@ -233,7 +220,7 @@ const Trainings = ({ admins, userEmail }) => {
               </div>
               <div
                 id={`training${index + 1}`}
-                className={`collapse ${isExpanded ? "show" : ""}`} // Change this line
+                className={`collapse ${isExpanded ? "show" : ""}`}
                 aria-labelledby={`trainingId${index + 1}`}
                 data-parent="#accordion"
               >

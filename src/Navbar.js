@@ -1,22 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoginModal from "./LoginModal";
 import SignUpModal from "./SignUpModal";
+import EditStaffStatsModal from "./EditStaffStatsModal";
 import { auth, db } from "./firebase";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-// import AdminManagementModal from "./AdminManagementModal";
-import EditStaffStatsModal from "./EditStaffStatsModal";
+import AdminManagementModal from "./AdminManagementModal";
 
-const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
+const Navbar = ({ userLoggedIn, userEmail, isAdminUser }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [navbarOpen, setNavbarOpen] = useState(false);
-  // const [showAdminManagementModal, setShowAdminManagementModal] =
-  //   useState(false);
-  const [showEditStaffStatsModal, setShowEditStaffModal] = useState(false);
+  const [showAdminManagementModal, setShowAdminManagementModal] =
+    useState(false);
+  const [showEditStaffStatsModal, setShowEditStaffStatsModal] = useState(false);
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
@@ -32,13 +32,13 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
     setNavbarOpen(!navbarOpen);
   };
 
-  // const toggleAdminManagementModal = () => {
-  //   setShowAdminManagementModal(!showAdminManagementModal);
-  //   setNavbarOpen(false);
-  // };
+  const toggleAdminManagementModal = () => {
+    setShowAdminManagementModal(!showAdminManagementModal);
+    setNavbarOpen(false);
+  };
 
   const toggleEditStaffStatsModal = () => {
-    setShowEditStaffModal(!showEditStaffStatsModal);
+    setShowEditStaffStatsModal(!showEditStaffStatsModal);
     setNavbarOpen(false);
   };
 
@@ -110,9 +110,9 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
       {/* Navbar links */}
       <div className={`collapse navbar-collapse ${navbarOpen && "show"}`}>
         <ul className="navbar-nav ml-auto">
-          {userLoggedIn && admins.includes(userEmail) && (
+          {userLoggedIn && isAdminUser && (
             <>
-              {/* <li className="navbar-item">
+            <li className="navbar-item">
                 <a
                   className="nav-link"
                   onClick={toggleAdminManagementModal}
@@ -125,7 +125,7 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
                   ></i>{" "}
                   Manage Admins
                 </a>
-              </li> */}
+              </li>
               <li className="navbar-item">
                 <a
                   className="nav-link"
@@ -203,7 +203,7 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
         </div>
       </div>
 
-      {/* Login, Sign Up, and Admin Management modals */}
+      {/* Login, Sign Up modals */}
       {showLoginModal && (
         <LoginModal
           showModal={showLoginModal}
@@ -218,15 +218,14 @@ const Navbar = ({ userLoggedIn, userEmail, admins, setAdmins }) => {
           handleSignUp={handleSignUp}
         />
       )}
-      {/* {showAdminManagementModal && (
+      {showAdminManagementModal && (
         <AdminManagementModal
           showModal={showAdminManagementModal}
           toggleModal={toggleAdminManagementModal}
-          admins={admins}
+          isAdminUser={isAdminUser}
           userEmail={userEmail}
-          setAdmins={setAdmins}
         />
-      )} */}
+      )}
       {showEditStaffStatsModal && (
         <EditStaffStatsModal
           showModal={showEditStaffStatsModal}

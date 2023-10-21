@@ -6,7 +6,7 @@ import WeatherData from "./Weather";
 import axios from "axios";
 import rateLimit from "axios-rate-limit";
 
-const Home = ({ admins, userEmail, userLoggedIn, isAdminUser }) => {
+const Home = ({ userEmail, userLoggedIn, isAdminUser }) => {
   const http = rateLimit(axios.create(), {
     maxRequests: 1,
     perMilliseconds: 1000,
@@ -16,17 +16,19 @@ const Home = ({ admins, userEmail, userLoggedIn, isAdminUser }) => {
     <>
       {userLoggedIn ? (
         <div className="home">
-          <AccountPage admins={admins} userEmail={userEmail} />
-          {isAdminUser && <CreateTrainingCard />}
-          {isAdminUser && <Trainings admins={admins} userEmail={userEmail} />}
+          <AccountPage userEmail={userEmail} />
+          {isAdminUser && (
+            <CreateTrainingCard cardOrder={[]} setCardOrder={() => {}} />
+          )}
+          <Trainings userEmail={userEmail} isAdminUser={isAdminUser} />
         </div>
       ) : (
         <div className="logoutScreen">
           <br />
-          <h5>Please login to view your stats.</h5>
+          <h5>Login to view your stats.</h5>
           <hr />
           <WeatherData http={http} />
-          <Trainings admins={admins} userEmail={userEmail} />
+          <Trainings userEmail={userEmail} isAdminUser={isAdminUser} />
         </div>
       )}
     </>
