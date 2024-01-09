@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const LoginModal = ({ showModal, toggleModal, handleLogin }) => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("info@turfplusutah.com");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e) => {
@@ -13,30 +13,24 @@ const LoginModal = ({ showModal, toggleModal, handleLogin }) => {
   return (
     showModal && (
       <div className="modal" tabIndex="-1" style={{ display: "block" }}>
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-sm">
           <div className="modal-content">
-            <div className="modal-header d-flex justify-content-between align-items-center">
-              <h5 className="modal-title">Login</h5>
-              <button
-                type="button"
-                className="btn btn-lg"
-                onClick={toggleModal}
-                aria-label="Close"
-              >
-                <i
-                  className="fa-solid fa-xmark fa-xs"
-                  style={{ color: "black" }}
-                ></i>
-              </button>
-            </div>
+            {/* <button
+              type="button"
+              className="btn btn-lg close-button"
+              onClick={toggleModal}
+              aria-label="Close"
+            >
+              <i className="fa-solid fa-xmark fa-xs" style={{ color: "black" }}></i>
+            </button> */}
             <div className="modal-body">
-              <form onSubmit={handleSubmit}>
+              <form
+                onSubmit={handleSubmit}
+                className="d-flex flex-column align-items-center"
+              >
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email address
-                  </label>
                   <input
-                    type="email"
+                    type="hidden"
                     className="form-control"
                     id="email"
                     value={email}
@@ -44,22 +38,23 @@ const LoginModal = ({ showModal, toggleModal, handleLogin }) => {
                     required
                   />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password
-                  </label>
+                <div className="mb-3 d-flex">
                   <input
                     type="password"
-                    className="form-control"
+                    className="form-control flex-grow-1"
                     id="password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <button type="submit" className="btn-custom">
+                    <i
+                      className="fas fa-check"
+                      style={{ color: "#FFFFFF", margin: "9px" }}
+                    ></i>
+                  </button>
                 </div>
-                <button type="submit" className="btn btn-custom">
-                  Login
-                </button>
               </form>
             </div>
           </div>

@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { 
+  // collection, addDoc, 
+  setDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
 
-const CreateTrainingCard = ({ cardOrder, setCardOrder }) => {
+const CreateTrainingCard = () => {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  // const [content, setContent] = useState("");
+  const [embedCodes, setEmbedCodes] = useState({
+    office: "",
+    field: "",
+    main: "",
+    quiz: "",
+  });
   const [showForm, setShowForm] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
 
@@ -12,8 +20,15 @@ const CreateTrainingCard = ({ cardOrder, setCardOrder }) => {
     setTitle(e.target.value);
   };
 
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
+  // const handleContentChange = (e) => {
+  //   setContent(e.target.value);
+  // };
+
+  const handleEmbedCodeChange = (field, e) => {
+    setEmbedCodes((prevCodes) => ({
+      ...prevCodes,
+      [field]: e.target.value,
+    }));
   };
 
   const handleToggleForm = () => {
@@ -21,27 +36,32 @@ const CreateTrainingCard = ({ cardOrder, setCardOrder }) => {
   };
 
   const handleCreateTraining = async () => {
-    if (title && content) {
+    if (title) {
       try {
-        // Set the document ID to match the title
-        await setDoc(doc(db, "trainings", title), {
+        const docRef = doc(db, "trainings", title);
+  
+        const data = {
           title: title,
-          content: content,
-        });
-
-        // Update the card order array with the new document's ID
-        const updatedCardOrder = [...cardOrder, title];
-        setCardOrder(updatedCardOrder);
-
-        // Reset form
+          embedCodes: { ...embedCodes },
+        };
+  
+        await setDoc(docRef, data);
+  
         setTitle("");
-        setContent("");
+        // setContent("");
+        setEmbedCodes({
+          office: "",
+          field: "",
+          main: "",
+          quiz: "",
+        });
       } catch (error) {
         console.error("Error adding training document: ", error);
         setShowErrorMessage(true);
       }
     }
   };
+  
 
   return (
     <div className="container">
@@ -104,29 +124,40 @@ const CreateTrainingCard = ({ cardOrder, setCardOrder }) => {
           {showForm && (
             <>
               <form>
-                <label htmlFor="title">Training Title</label>
                 <input
                   type="text"
                   className="form-control"
                   id="title"
                   name="title"
+                  placeholder="Title"
                   value={title}
                   onChange={handleTitleChange}
                   required
+                  style={{ marginTop: "15px", marginBottom: "15px" }}
                 />
-                <label style={{ marginTop: "15px" }} htmlFor="content">
-                  Training Content
-                </label>
-                <textarea
+                {/* <textarea
                   id="content"
                   className="form-control"
                   name="content"
+                  placeholder="Training Content"
                   value={content}
                   onChange={handleContentChange}
                   required
-                ></textarea>
-                <br />
+                ></textarea> */}
+                {Object.entries(embedCodes).map(([field, value]) => (
+                  <textarea
+                    key={field}
+                    id={`embedCode-${field}`}
+                    className="form-control"
+                    name={`embedCode-${field}`}
+                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                    value={value}
+                    onChange={(e) => handleEmbedCodeChange(field, e)}
+                    style={{ marginTop: "15px", marginBottom: "15px" }}
+                  ></textarea>
+                ))}
               </form>
+              <br />
               <button className="btn btn-custom" onClick={handleCreateTraining}>
                 Create
               </button>

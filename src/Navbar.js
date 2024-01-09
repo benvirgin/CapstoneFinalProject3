@@ -1,45 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import LoginModal from "./LoginModal";
-import SignUpModal from "./SignUpModal";
-import EditStaffStatsModal from "./EditStaffStatsModal";
-import { auth, db } from "./firebase";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import AdminManagementModal from "./AdminManagementModal";
+import { auth } from "./firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
-const Navbar = ({ userLoggedIn, userEmail, isAdminUser }) => {
+const Navbar = ({ userLoggedIn }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [showAdminManagementModal, setShowAdminManagementModal] =
-    useState(false);
-  const [showEditStaffStatsModal, setShowEditStaffStatsModal] = useState(false);
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
     setNavbarOpen(false);
   };
 
-  const toggleSignUpModal = () => {
-    setShowSignUpModal(!showSignUpModal);
-    setNavbarOpen(false);
-  };
-
   const toggleNavbar = () => {
     setNavbarOpen(!navbarOpen);
-  };
-
-  const toggleAdminManagementModal = () => {
-    setShowAdminManagementModal(!showAdminManagementModal);
-    setNavbarOpen(false);
-  };
-
-  const toggleEditStaffStatsModal = () => {
-    setShowEditStaffStatsModal(!showEditStaffStatsModal);
-    setNavbarOpen(false);
   };
 
   const toggleDarkMode = () => {
@@ -72,29 +46,6 @@ const Navbar = ({ userLoggedIn, userEmail, isAdminUser }) => {
     }
   };
 
-  const handleSignUp = (email, password, name) => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        const userData = {
-          email: user.email,
-          name: name,
-        };
-
-        const userRef = doc(db, "users", user.uid);
-        setDoc(userRef, userData)
-          .then(() => {
-            toggleSignUpModal();
-          })
-          .catch((error) => {
-            console.log("Sign up error:", error);
-          });
-      })
-      .catch((error) => {
-        console.log("Sign up error:", error);
-      });
-  };
-
   return (
     <nav className="navbar navbar-light bg-light navbar-expand-lg">
       {/* Logo */}
@@ -110,86 +61,43 @@ const Navbar = ({ userLoggedIn, userEmail, isAdminUser }) => {
       {/* Navbar links */}
       <div className={`collapse navbar-collapse ${navbarOpen && "show"}`}>
         <ul className="navbar-nav ml-auto">
-          {userLoggedIn && isAdminUser && (
+          {userLoggedIn && (
             <>
-            <li className="navbar-item">
-                <a
-                  className="nav-link"
-                  onClick={toggleAdminManagementModal}
-                  role="link"
-                >
-                  <i
-                    role="icon"
-                    className="fa-solid fa-user-pen"
-                    style={{ color: "#034284" }}
-                  ></i>{" "}
-                  Manage Admins
-                </a>
-              </li>
               <li className="navbar-item">
                 <a
+                  id="logout"
                   className="nav-link"
-                  onClick={toggleEditStaffStatsModal}
+                  onClick={handleLogout}
                   role="link"
                 >
                   <i
                     role="icon"
-                    className="fa-solid fa-pen"
+                    className="fa-solid fa-sign-out"
                     style={{ color: "#034284" }}
                   ></i>{" "}
-                  Edit Staff Stats
+                  {/* Logout */}
                 </a>
               </li>
             </>
           )}
 
-          {/* Login and Sign Up buttons */}
           {!userLoggedIn && (
             <>
               <li className="navbar-item">
                 <a className="nav-link" onClick={toggleLoginModal} role="link">
                   <i
-                    role="icon"
-                    className="fa-solid fa-right-to-bracket"
+                    className="fa-solid fa-pen"
                     style={{ color: "#034284" }}
                   ></i>{" "}
-                  Login
-                </a>
-              </li>
-              <li className="navbar-item">
-                <a className="nav-link" onClick={toggleSignUpModal} role="link">
-                  <i
-                    role="icon"
-                    className="fa-solid fa-user-plus"
-                    style={{ color: "#034284" }}
-                  ></i>{" "}
-                  Sign Up
+                  {/* Login */}
                 </a>
               </li>
             </>
           )}
-
-          {/* Logout link */}
-          {userLoggedIn && (
-            <li className="navbar-item">
-              <a
-                id="logout"
-                className="nav-link"
-                onClick={handleLogout}
-                role="link"
-              >
-                <i
-                  role="icon"
-                  className="fa-solid fa-sign-out"
-                  style={{ color: "#034284" }}
-                ></i>{" "}
-                Logout
-              </a>
-            </li>
-          )}
         </ul>
 
         {/* Dark Mode toggle */}
+        <i className="fas fa-sun fa-lg" style={{ color: '#FDB813', margin: "8px" }}></i>
         <div className="custom-control custom-switch">
           <input
             type="checkbox"
@@ -198,38 +106,17 @@ const Navbar = ({ userLoggedIn, userEmail, isAdminUser }) => {
             onClick={toggleDarkMode}
           />
           <label className="custom-control-label" htmlFor="customSwitches">
-            Dark Mode
+            <i className="fas fa-moon fa-lg" style={{ color: '#F6F1D5' }}></i>
           </label>
         </div>
       </div>
 
-      {/* Login, Sign Up modals */}
+      {/* Modals */}
       {showLoginModal && (
         <LoginModal
           showModal={showLoginModal}
           toggleModal={toggleLoginModal}
           handleLogin={handleLogin}
-        />
-      )}
-      {showSignUpModal && (
-        <SignUpModal
-          showModal={showSignUpModal}
-          toggleModal={toggleSignUpModal}
-          handleSignUp={handleSignUp}
-        />
-      )}
-      {showAdminManagementModal && (
-        <AdminManagementModal
-          showModal={showAdminManagementModal}
-          toggleModal={toggleAdminManagementModal}
-          isAdminUser={isAdminUser}
-          userEmail={userEmail}
-        />
-      )}
-      {showEditStaffStatsModal && (
-        <EditStaffStatsModal
-          showModal={showEditStaffStatsModal}
-          toggleModal={toggleEditStaffStatsModal}
         />
       )}
     </nav>

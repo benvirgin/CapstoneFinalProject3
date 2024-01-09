@@ -9,11 +9,13 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-const Trainings = ({ isAdminUser, userEmail }) => {
+const embedCodeOrder = ["office", "field", "main", "quiz"];
+
+const Trainings = ({ userEmail }) => {
   const [trainings, setTrainings] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
   const [updatedTitle, setUpdatedTitle] = useState("");
-  const [updatedContent, setUpdatedContent] = useState("");
+  const [updatedEmbedCodes, setUpdatedEmbedCodes] = useState({});
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "trainings"), (snapshot) => {
@@ -40,15 +42,18 @@ const Trainings = ({ isAdminUser, userEmail }) => {
   const handleEdit = (index) => {
     setEditableIndex(index);
     setUpdatedTitle(trainings[index].title);
-    setUpdatedContent(trainings[index].content);
+    setUpdatedEmbedCodes({ ...trainings[index].embedCodes });
   };
 
   const handleChangeTitle = (e) => {
     setUpdatedTitle(e.target.value);
   };
 
-  const handleChangeContent = (e) => {
-    setUpdatedContent(e.target.value);
+  const handleChangeEmbedCode = (field, e) => {
+    setUpdatedEmbedCodes((prevCodes) => ({
+      ...prevCodes,
+      [field]: e.target.value,
+    }));
   };
 
   const handleCheck = async (index) => {
@@ -56,29 +61,26 @@ const Trainings = ({ isAdminUser, userEmail }) => {
       const training = trainings[index];
       const updatedTitleValue =
         updatedTitle !== "" ? updatedTitle : training.title;
-      const updatedContentValue =
-        updatedContent !== "" ? updatedContent : training.content;
+
+      const data = {
+        title: updatedTitleValue,
+        embedCodes: { ...updatedEmbedCodes },
+      };
 
       if (updatedTitleValue !== training.title) {
         const newDocRef = doc(db, "trainings", updatedTitleValue);
-        await setDoc(newDocRef, {
-          title: updatedTitleValue,
-          content: updatedContentValue,
-        });
+        await setDoc(newDocRef, data);
 
         if (index !== null) {
           await deleteDoc(doc(db, "trainings", training.id));
         }
       } else {
-        await updateDoc(doc(db, "trainings", training.id), {
-          title: updatedTitleValue,
-          content: updatedContentValue,
-        });
+        await updateDoc(doc(db, "trainings", training.id), data);
       }
 
       setEditableIndex(null);
       setUpdatedTitle("");
-      setUpdatedContent("");
+      setUpdatedEmbedCodes({});
     } catch (error) {
       console.error("Error updating training document: ", error);
     }
@@ -110,7 +112,6 @@ const Trainings = ({ isAdminUser, userEmail }) => {
         {trainings.map((training, index) => {
           const isEditable = editableIndex === index;
           const isExpanded = editableIndex === index;
-          // const isAdmin = isAdminUser && isAdminUser.includes(userEmail);
 
           return (
             <div className={`card ${isEditable ? "editable" : ""}`} key={index}>
@@ -135,7 +136,7 @@ const Trainings = ({ isAdminUser, userEmail }) => {
                           background: "none",
                           border: "none",
                           outline: "none",
-                          boxShadow: "none",
+                          boxShadow: " none",
                           fontFamily: "inherit",
                           fontSize: "inherit",
                           fontWeight: "inherit",
@@ -150,9 +151,9 @@ const Trainings = ({ isAdminUser, userEmail }) => {
                     )}
                   </h5>
                 </span>
-                {!isEditable && isAdminUser && (
+                {!isEditable && userEmail && (
                   <>
-                    <span
+                    {/* <span
                       className="tt"
                       data-bs-placement="bottom"
                       title="Edit"
@@ -171,7 +172,7 @@ const Trainings = ({ isAdminUser, userEmail }) => {
                           style={{ color: "#034284" }}
                         ></i>
                       </button>
-                    </span>
+                    </span> */}
                     <span
                       className="tt"
                       data-bs-placement="bottom"
@@ -194,7 +195,7 @@ const Trainings = ({ isAdminUser, userEmail }) => {
                     </span>
                   </>
                 )}
-                {isEditable && isAdminUser && (
+                {isEditable && userEmail && (
                   <span
                     className="tt"
                     data-bs-placement="bottom"
@@ -224,28 +225,46 @@ const Trainings = ({ isAdminUser, userEmail }) => {
                 aria-labelledby={`trainingId${index + 1}`}
                 data-parent="#accordion"
               >
-                <div className="card-body">
+                <div className="card-body" style={{ textAlign: "center" }}>
                   {isEditable ? (
-                    <textarea
-                      className="form-control"
-                      value={updatedContent}
-                      onChange={handleChangeContent}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        outline: "none",
-                        boxShadow: "none",
-                        fontFamily: "inherit",
-                        fontSize: "inherit",
-                        fontWeight: "inherit",
-                        fontStyle: "inherit",
-                        letterSpacing: "inherit",
-                        lineHeight: "inherit",
-                        color: "inherit",
-                      }}
-                    ></textarea>
+                    <>
+                      {embedCodeOrder.map((field) => (
+                        <div key={field}>
+                          <label htmlFor={`embedCode-${field}`}>
+                            {field.charAt(0).toUpperCase() + field.slice(1)}:
+                          </label>
+                          <textarea
+                            id={`embedCode-${field}`}
+                            className="form-control"
+                            name={`embedCode-${field}`}
+                            value={updatedEmbedCodes[field] || ""}
+                            onChange={(e) => handleChangeEmbedCode(field, e)}
+                            style={{
+                              height: `${Math.max((updatedEmbedCodes[field] || "").split('\n').length * 2, 3)}em`,
+                              minHeight: "6em",
+                              marginTop: "15px",
+                              marginBottom: "15px",
+                              resize: "none",
+                              border: "none",
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </>
                   ) : (
-                    <p>{training.content}</p>
+                    <div>
+                      <div>
+                        {embedCodeOrder.map((field) => (
+                          <div key={field}>
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: training.embedCodes[field],
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
