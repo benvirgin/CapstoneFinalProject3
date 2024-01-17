@@ -153,7 +153,7 @@ const Trainings = ({ userEmail }) => {
                 </span>
                 {!isEditable && userEmail && (
                   <>
-                    {/* <span
+                    <span
                       className="tt"
                       data-bs-placement="bottom"
                       title="Edit"
@@ -172,7 +172,7 @@ const Trainings = ({ userEmail }) => {
                           style={{ color: "#034284" }}
                         ></i>
                       </button>
-                    </span> */}
+                    </span>
                     <span
                       className="tt"
                       data-bs-placement="bottom"
