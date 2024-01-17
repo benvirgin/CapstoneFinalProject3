@@ -8,10 +8,10 @@ const CreateTrainingCard = () => {
   const [title, setTitle] = useState("");
   // const [content, setContent] = useState("");
   const [embedCodes, setEmbedCodes] = useState({
-    office: "",
-    field: "",
-    main: "",
-    quiz: "",
+    Embed: "",
+    // field: "",
+    // main: "",
+    // quiz: "",
   });
   const [showForm, setShowForm] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
@@ -50,10 +50,10 @@ const CreateTrainingCard = () => {
         setTitle("");
         // setContent("");
         setEmbedCodes({
-          office: "",
-          field: "",
-          main: "",
-          quiz: "",
+          Embed: "",
+          // field: "",
+          // main: "",
+          // quiz: "",
         });
       } catch (error) {
         console.error("Error adding training document: ", error);

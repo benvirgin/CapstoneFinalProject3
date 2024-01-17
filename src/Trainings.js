@@ -9,7 +9,9 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-const embedCodeOrder = ["office", "field", "main", "quiz"];
+const embedCodeOrder = ["Embed", 
+// "field", "main", "quiz"
+];
 
 const Trainings = ({ userEmail }) => {
   const [trainings, setTrainings] = useState([]);
